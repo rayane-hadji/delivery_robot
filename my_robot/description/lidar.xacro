@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- INCLURE VELODYNE DESCRIPTION -->
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" />
+
+  <!-- SUPPORT POUR LE LIDAR -->
+  <joint name="lidar_support_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="lidar_support"/>
+    <origin xyz="0.122 0 0.18" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_support">
+    <visual>
+      <geometry>
+        <cylinder radius="0.01" length="0.2"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.01" length="0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="lidar_support">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+  <!-- PLATE-FORME POUR LE LIDAR -->
+  <joint name="lidar_platform_joint" type="fixed">
+    <parent link="lidar_support"/>
+    <child link="lidar_platform"/>
+    <origin xyz="0 0 0.07" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_platform">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.01"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="lidar_platform">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+  <!-- LIDAR VELODYNE SUR LA PLATE-FORME -->
+  <xacro:VLP-16 parent="lidar_platform" topic="scan" name="vlp16">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:VLP-16>
+
+  <!-- VOTRE CONFIGURATION GAZEBO -->
+  <gazebo reference="vlp16">
+    <material>Gazebo/Black</material>
+    <sensor name="laser" type="ray">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <min_angle>-3.14</min_angle>
+            <max_angle>3.14</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.3</min>
+          <max>12</max>
+        </range>
+      </ray>
+      <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <argument>~/out:=scan</argument>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>vlp16</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Link simple -->
+  <link name="gps_link">
+    <visual>
+      <geometry><box size="0.03 0.03 0.01"/></geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!-- Joint fixe -->
+  <joint name="gps_joint" type="fixed">
+    <origin xyz="0.2 0.0 0.142" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="gps_link"/>
+  </joint>
+
+  <!-- Plugin GPS Gazebo - VERSION COMPLÈTE -->
+  <gazebo reference="gps_link">
+    <sensor name="gps_sensor" type="gps">
+      <always_on>true</always_on>
+      <update_rate>10</update_rate>
+      <plugin name="gps_plugin" filename="libgazebo_ros_gps_sensor.so">
+        <ros>
+          <remapping>~/out:=gps/fix</remapping>
+        </ros>
+        <frame_name>gps_link</frame_name>
+        <velocity_topic>gps/vel</velocity_topic>
+        <!-- Référence de position (nécessaire pour Gazebo) -->
+        <reference_latitude>43.123456</reference_latitude>
+        <reference_longitude>6.789012</reference_longitude>
+        <reference_altitude>100.0</reference_altitude>
+      </plugin>
+    </sensor>
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+</robot>
